@@ -1,0 +1,1 @@
+document.getElementById("root").innerHTML = "Invest calculator will be here";
