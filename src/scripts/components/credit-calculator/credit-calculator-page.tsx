@@ -3,10 +3,12 @@ import CreditCalculator from './credit-calculator'
 
 export default function CreditCalculatorPage() {
     return (
-        <div>
+        <div className="calc-page">
             <h1 className="calc-header">Кредитный калькулятор</h1>
             <div className="calc-content">
-                <CreditCalculator/>
+                <div className="calc-inner-container">
+                    <CreditCalculator/>
+                </div>    
             </div>
         </div>
     )
