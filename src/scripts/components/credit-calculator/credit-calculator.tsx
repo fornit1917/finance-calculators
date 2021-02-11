@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { CreditCalculationParams, CreditCalculationResult, CreditCalculationType, PeriodType } from '../../servcies/credit-calculator-data-models';
+import { CreditCalculationParams, CreditCalculationResult, CreditCalculationType, PeriodType } from '../../servcies/credit-calculator-types';
 import CreditCalculatorForm from './credit-calculator-form'
 import CreditCalculatorResult from './credit-calculator-result'
 

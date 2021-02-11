@@ -1,13 +1,13 @@
 import React from 'react'
-import { CreditCalculationResult } from '../../servcies/credit-calculator-data-models';
+import { CreditCalculationResult } from '../../servcies/credit-calculator-types';
 
 export default function CreditCalculatorResult(props: { result: CreditCalculationResult | null }) {
     if (props.result === null) {
-        return (<div>Empty result</div>);
+        return (<div></div>);
     }
     return (
         <div>
-            Calculation result will be here
+            
         </div>
     )
 }

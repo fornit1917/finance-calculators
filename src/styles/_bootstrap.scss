@@ -1,15 +1,12 @@
-// Configuration
 @import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/variables";
 
 // rewrite bootstrap variables
 $border-radius:               0rem;
 $border-radius-sm:            0rem;
 $border-radius-lg:            0rem;
+// ----------------------------
 
-$form-select-border-radius:             0px;
-// -----------------------------------------
-
+@import "../../node_modules/bootstrap/scss/variables";
 @import "../../node_modules/bootstrap/scss/mixins";
 @import "../../node_modules/bootstrap/scss/utilities";
 

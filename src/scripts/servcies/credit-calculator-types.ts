@@ -14,10 +14,12 @@ export enum PaymentType {
 
 export interface CreditCalculationParams {
     calculationType: CreditCalculationType;
-    amount: Number;
-    period: Number;
+    amount: number;
+    period: number;
     periodType: PeriodType;
-    percent: Number;
+    percent: number;
+    payment: number;
+    paymentType: PaymentType;
 }
 
 export interface CreditCalculationResult {
