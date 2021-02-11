@@ -3,9 +3,11 @@
 @import "../../node_modules/bootstrap/scss/variables";
 
 // rewrite bootstrap variables
-$input-border-radius:                   0px;
-$input-border-radius-sm:                0px;
-$input-border-radius-lg:                0px;
+$border-radius:               0rem;
+$border-radius-sm:            0rem;
+$border-radius-lg:            0rem;
+
+$form-select-border-radius:             0px;
 // -----------------------------------------
 
 @import "../../node_modules/bootstrap/scss/mixins";
