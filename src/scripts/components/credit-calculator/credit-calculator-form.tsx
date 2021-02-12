@@ -31,6 +31,11 @@ const PAYMENT_TYPE_OPTIONS = [
     { value: PaymentType.Differentiated.toString(), text: "Дифференцированный" },
 ];
 
+const PERIOD_TYPE_OPTIONS = [
+    { value: PeriodType.Year.toString(), text: "Лет" },
+    { value: PeriodType.Month.toString(), text: "Месяцев" },
+];
+
 export default class CreditCalculatorForm extends PureComponent<CreditCalculatorFormProps, CreditCalculatorFormState> {
     constructor(props) {
         super(props);
@@ -65,6 +70,11 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
         const values = { ...this.state.values, [id]: value };
         this.setState({ ...this.state, values });
     };
+
+    handlePeriodTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const values = { ...this.state.values, periodType: e.currentTarget.value };
+        this.setState({ ...this.state, values });
+    }
 
     handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.stopPropagation();
@@ -129,6 +139,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
                 value={this.getValue(Fields.Period)}
                 onChange={this.handleTextInputChange}
                 error={this.state.errors.period}
+                renderAdditionalControl={this.renderPeriodTypeDropdown}
             />
         );
     }
@@ -146,6 +157,14 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
                 onChange={this.handlePaymentTypeChange}
             />
         );
+    }
+
+    renderPeriodTypeDropdown = () => {
+        return (
+            <select className="form-select" onChange={this.handlePeriodTypeChange}>
+                {PERIOD_TYPE_OPTIONS.map(x => <option key={x.value} value={x.value}>{x.text}</option>)}
+            </select>            
+        )
     }
 
     render() {
@@ -166,6 +185,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
                     <InputField
                         id={Fields.Percent}
                         label="Процентная ставка"
+                        additionalText="% годовых"
                         value={this.getValue(Fields.Percent)}
                         onChange={this.handleTextInputChange}
                         error={errors.percent}

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { ReactElement } from "react";
 
 interface Props {
     id: string;
     label: string;
+    additionalText?: string;
     value: string;
     error?: string;
+    renderAdditionalControl?: () => ReactElement;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -16,16 +18,21 @@ export default function InputField(props: Props) {
                 {props.label}
             </label>
             <div className="col-sm-3">
-                <input type="text" className={inputClassName} id={props.id} onChange={props.onChange} value={props.value}/>
-                <Error error={props.error}/>
+                <div className="input-group">
+                    <input
+                        type="text"
+                        className={inputClassName}
+                        id={props.id}
+                        onChange={props.onChange}
+                        value={props.value}
+                    />
+                    {props.additionalText ? (
+                        <span className="field-additional-text">{props.additionalText}</span>
+                    ) : null}
+                    {props.error ? <div className="invalid-feedback">{props.error}</div> : null}
+                </div>
             </div>
+            {props.renderAdditionalControl ? <div className="col-sm-2">{props.renderAdditionalControl()}</div> : null}
         </div>
     );
-}
-
-function Error(props: {error: string | undefined}) {
-    if (!props.error) {
-        return null;
-    }
-    return <div className="invalid-feedback">{props.error}</div>
 }
