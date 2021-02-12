@@ -36,9 +36,12 @@ export function createConditionalValidator(condition: (formValues: FormValues) =
     }
 }
 
-export function validate(formValues: FormValues, rules: ValidationRules) {
+export function validate(formValues: FormValues, rules: ValidationRules, ...fieldsToValidation: string[]) {
     const errors = {};
-    Object.keys(rules).forEach(key => {
+    if (!fieldsToValidation || fieldsToValidation.length === 0) {
+        fieldsToValidation = Object.keys(rules);
+    }
+    fieldsToValidation.forEach(key => {
         if (formValues[key] !== undefined) {
             const validator = rules[key];
             const [isValid, message] = validator(formValues[key], formValues)

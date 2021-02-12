@@ -68,7 +68,19 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
         const formatter = id === Fields.Amount ? formatBigNumber : getOnlyDigits;
         const value = formatter(e.currentTarget.value);
         const values = { ...this.state.values, [id]: value };
-        this.setState({ ...this.state, values });
+        
+        if (this.state.errors[id]) {
+            const fieldError = validateCreditForm(values, id as Fields)[id];
+            const errors = { ...this.state.errors };
+            if (!fieldError) {
+                delete errors[id];
+            } else {
+                errors[id] = fieldError;
+            }
+            this.setState({ ...this.state, values, errors });
+        } else {
+            this.setState({ ...this.state, values });
+        }
     };
 
     handlePeriodTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -121,6 +133,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
             <InputField
                 id={Fields.Amount}
                 label="Сумма кредита"
+                additionalText="Руб."
                 value={this.getValue(Fields.Amount)}
                 onChange={this.handleTextInputChange}
                 error={this.state.errors.amount}

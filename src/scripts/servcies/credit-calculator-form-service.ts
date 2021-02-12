@@ -72,6 +72,6 @@ export function getCreditCalculationParams(formValues: { [key in Fields]: string
     };
 }
 
-export function validateCreditForm(formValues: { [key in Fields]: string }, fieldForValidation: Fields | null = null) {
-    return validate(formValues, validationRules) as {[key in Fields] : string};
+export function validateCreditForm(formValues: { [key in Fields]: string }, ...fieldsToValidation: Fields[]) {
+    return validate(formValues, validationRules, ...fieldsToValidation) as {[key in Fields] : string};
 }
