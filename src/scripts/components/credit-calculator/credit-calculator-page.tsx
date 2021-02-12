@@ -6,9 +6,7 @@ export default function CreditCalculatorPage() {
         <div className="calc-page">
             <h1 className="calc-header">Кредитный калькулятор</h1>
             <div className="calc-content">
-                <div className="calc-inner-container">
-                    <CreditCalculator/>
-                </div>    
+                <CreditCalculator/>    
             </div>
         </div>
     )

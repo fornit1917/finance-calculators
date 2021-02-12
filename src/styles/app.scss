@@ -19,7 +19,13 @@ body {
     padding: 20px 10px;
 }
 
-.calc-inner-container {
+.content-container {
     width: 100%;
     max-width: 920px;
+}
+
+.calc-result {
+    border-top: 3px solid #dde5e7;
+    margin-top: 2rem;
+    padding-top: 1rem;
 }

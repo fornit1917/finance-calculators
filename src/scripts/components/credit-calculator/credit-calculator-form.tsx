@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { Fields, validateCreditForm } from "../../servcies/credit-calculator-form-service";
+import { Fields, getCreditCalculationParams, validateCreditForm } from "../../servcies/credit-calculator-form-service";
 import {
     CreditCalculationParams,
     CreditCalculationType,
@@ -72,7 +72,12 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
 
         const values = this.state.values;
         const errors = validateCreditForm(values);
-        this.setState({ ...this.state, errors });
+        this.setState({ ...this.state, errors }, () => {
+            if (Object.keys(errors).length === 0) {
+                const calculationParams = getCreditCalculationParams(this.state.values);
+                this.props.onCalculate(calculationParams);
+            }
+        });
     }
 
     private getValue(field: Fields): string {
@@ -146,7 +151,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
     render() {
         const errors = this.state.errors;
         return (
-            <div>
+            <div className="content-container">
                 <form onSubmit={this.handleSubmit}>
                     <DropdownField
                         id={Fields.CalculationType}

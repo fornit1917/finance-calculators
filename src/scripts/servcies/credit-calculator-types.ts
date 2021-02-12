@@ -13,16 +13,16 @@ export enum PaymentType {
 }
 
 export interface CreditCalculationParams {
-    calculationType: CreditCalculationType;
-    amount: number;
-    period: number;
-    periodType: PeriodType;
-    percent: number;
-    payment: number;
-    paymentType: PaymentType;
+    readonly calculationType: CreditCalculationType;
+    readonly amount: number;
+    readonly period: number;
+    readonly periodType: PeriodType;
+    readonly percent: number;
+    readonly payment: number;
+    readonly paymentType: PaymentType;
 }
 
 export interface CreditCalculationResult {
-
+    readonly error?: string;
 }
 
