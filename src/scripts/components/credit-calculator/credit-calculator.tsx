@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { getCreditCalculationResult } from '../../servcies/credit-calculator';
+import { calculateCredit } from '../../servcies/credit-calculation';
 import { CreditCalculationParams, CreditCalculationResult, CreditCalculationType, PeriodType } from '../../servcies/credit-calculator-types';
 import CreditCalculatorForm from './credit-calculator-form'
 import CreditCalculatorResult from './credit-calculator-result'
@@ -16,7 +16,7 @@ export default class CreditCalculator extends Component<{}, State> {
     }
 
     handleCalculation = (params: CreditCalculationParams) => {
-        const result = getCreditCalculationResult(params);
+        const result = calculateCredit(params);
         this.setState({ ...this.state, result });
     }
 

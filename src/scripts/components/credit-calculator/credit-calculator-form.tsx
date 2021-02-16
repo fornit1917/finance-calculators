@@ -6,7 +6,7 @@ import {
     PaymentType,
     PeriodType,
 } from "../../servcies/credit-calculator-types";
-import { formatBigNumber, getOnlyDigits } from "../../utils/number-formatters";
+import { formatMoney, getNumberChars, getPositiveIntegerChars } from "../../utils/number-formatters";
 import DropdownField from "../common/dropdown-field";
 import InputField from "../common/input-field";
 import RadoibuttonsField from "../common/radiobuttons-field";
@@ -65,8 +65,21 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
 
     handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const id = e.currentTarget.id;
-        const formatter = id === Fields.Amount ? formatBigNumber : getOnlyDigits;
+        let formatter: (s: string) => string;
+        if (id === Fields.Amount || id === Fields.Payment) {
+            formatter = formatMoney;
+        } else if (id === Fields.Period) {
+            formatter = getPositiveIntegerChars;
+        } else {
+            formatter = getNumberChars;
+        }
+        
         const value = formatter(e.currentTarget.value);
+        console.log({value, src: e.currentTarget.value});
+        if (value === null) {
+            return;
+        }
+
         const values = { ...this.state.values, [id]: value };
         
         if (this.state.errors[id]) {
@@ -183,8 +196,8 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
     render() {
         const errors = this.state.errors;
         return (
-            <div className="content-container">
-                <form onSubmit={this.handleSubmit}>
+            <div className="content-container content-container--small">
+                <form onSubmit={this.handleSubmit} autoComplete="off">
                     <DropdownField
                         id={Fields.CalculationType}
                         label="Вариант расчёта"

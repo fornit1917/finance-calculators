@@ -24,5 +24,15 @@ export interface CreditCalculationParams {
 
 export interface CreditCalculationResult {
     readonly error?: string;
+    readonly calculationType: CreditCalculationType;
+    readonly values?: {
+        monthlyPayment: number;
+        charges: number;
+        total: number;
+        amount: number;
+        period: number;
+    }
+
+
 }
 

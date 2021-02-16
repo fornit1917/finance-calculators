@@ -22,7 +22,11 @@ body {
 
 .content-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 920px;
+
+    &--small {
+        max-width: 800px;
+    }
 }
 
 .calc-result {
@@ -39,5 +43,19 @@ body {
 @media (min-width: 575px) {
     .row .additional-col {
         padding-left: 0px;
+    }
+}
+
+
+
+
+.calc-result-row {
+    &__value {
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+
+    &__currency {
+        color: #758a9a;
     }
 }
