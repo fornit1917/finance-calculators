@@ -59,7 +59,7 @@ function renderResultContent(props: { result: CreditCalculationResult }) {
             "Сумма переплаты",
         ],
         datasets: [{
-            data: [amount, total],
+            data: [amount, charges],
             backgroundColor: [
             '#FF6384',
             '#36A2EB',
