@@ -22,17 +22,23 @@ export interface CreditCalculationParams {
     readonly paymentType: PaymentType;
 }
 
+export interface MonthlyDataItem {
+    main: number;
+    percent: number;
+    left: number;
+}
+
 export interface CreditCalculationResult {
     readonly error?: string;
     readonly calculationType: CreditCalculationType;
+    readonly paymentType: PaymentType;
     readonly values?: {
         monthlyPayment: number;
         charges: number;
         total: number;
         amount: number;
         period: number;
+        monthlyData: MonthlyDataItem[];
     }
-
-
 }
 

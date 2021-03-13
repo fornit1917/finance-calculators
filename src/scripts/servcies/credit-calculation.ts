@@ -1,20 +1,35 @@
-import { CreditCalculationParams, CreditCalculationResult, CreditCalculationType, PaymentType, PeriodType } from "./credit-calculator-types";
+import { roundMoney } from "../utils/number-formatters";
+import {
+    CreditCalculationParams,
+    CreditCalculationResult,
+    CreditCalculationType,
+    MonthlyDataItem,
+    PaymentType,
+    PeriodType,
+} from "./credit-calculator-types";
 
 export function calculateCredit(params: CreditCalculationParams): CreditCalculationResult {
     if (params.paymentType == PaymentType.Annuity) {
         return calculateAnnuity(params);
     } else {
-        return { error: "Выбранный метод платежа временно не поддерживается", calculationType: params.calculationType };
+        return {
+            error: "Выбранный метод платежа временно не поддерживается",
+            calculationType: params.calculationType,
+            paymentType: params.paymentType,
+        };
     }
 }
 
 function calculateAnnuity(params: CreditCalculationParams): CreditCalculationResult {
     const i = params.percent / 12 / 100;
-    
-    if (params.calculationType === CreditCalculationType.MaxAmount || params.calculationType === CreditCalculationType.Payment) {
+
+    if (
+        params.calculationType === CreditCalculationType.MaxAmount ||
+        params.calculationType === CreditCalculationType.Payment
+    ) {
         const n = params.periodType === PeriodType.Month ? params.period : params.period * 12;
         const k1 = Math.pow(1 + i, n);
-        const k = i * k1 / (k1 - 1);
+        const k = (i * k1) / (k1 - 1);
 
         let monthlyPayment: number, total: number, charges: number, amount: number;
         if (params.calculationType === CreditCalculationType.Payment) {
@@ -31,6 +46,8 @@ function calculateAnnuity(params: CreditCalculationParams): CreditCalculationRes
             charges = total - amount;
         }
 
+        const { monthlyData } = getMonthlyData(amount, monthlyPayment, i);
+
         return {
             values: {
                 monthlyPayment: roundMoney(monthlyPayment),
@@ -38,38 +55,63 @@ function calculateAnnuity(params: CreditCalculationParams): CreditCalculationRes
                 charges: roundMoney(charges),
                 amount: roundMoney(amount),
                 period: params.period,
+                monthlyData,
             },
-            calculationType: params.calculationType
-        }        
+            calculationType: params.calculationType,
+            paymentType: params.paymentType,
+        };
     } else {
-
         if (params.payment < i * params.amount) {
-            return { error: "Суммы ежемесячного платежа недостаточно для покрытия процентов за первый месяц.", calculationType: CreditCalculationType.Period };
+            return {
+                error: "Суммы ежемесячного платежа недостаточно для покрытия процентов за первый месяц.",
+                calculationType: CreditCalculationType.Period,
+                paymentType: params.paymentType,
+            };
         }
 
-        let left = params.amount;
-        let n = 0;
-        let totalCharges = 0;
-        while (left > 0) {
-            const charges = left * i;
-            left = left - params.payment + charges;
-            n++;
-            totalCharges += charges;
-        }
+        const result = getMonthlyData(params.amount, params.payment, i);
 
         return {
             values: {
                 monthlyPayment: roundMoney(params.payment),
-                total: roundMoney(params.amount + totalCharges),
-                charges: roundMoney(totalCharges),
+                total: roundMoney(params.amount + result.totalCharges),
+                charges: roundMoney(result.totalCharges),
                 amount: roundMoney(params.amount),
-                period: n,
+                period: result.period,
+                monthlyData: result.monthlyData,
             },
-            calculationType: params.calculationType
-        }               
-    }   
+            calculationType: params.calculationType,
+            paymentType: params.paymentType,
+        };
+    }
 }
 
-function roundMoney(x: number): number {
-    return parseFloat(x.toFixed(2));
+interface MonthlyDataCalculationResult {
+    monthlyData: MonthlyDataItem[];
+    totalCharges: number;
+    period: number;
+}
+function getMonthlyData(amount: number, monthlyPayment: number, monthlyPercent: number): MonthlyDataCalculationResult {
+    let left = amount;
+    let period = 0;
+    let totalCharges = 0;
+    const monthlyData: MonthlyDataItem[] = [];
+    while (left > 0.01) {
+        const charges = left * monthlyPercent;
+        period++;
+        totalCharges += charges;
+        left = left - monthlyPayment + charges;
+
+        if (left < 0.01) {
+            left = 0;
+        }
+        
+        monthlyData.push({
+            percent: roundMoney(charges),
+            main: roundMoney(monthlyPayment - charges),
+            left: roundMoney(left),
+        });            
+        
+    }
+    return { monthlyData, totalCharges, period };
 }

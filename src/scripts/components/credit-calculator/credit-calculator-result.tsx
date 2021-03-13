@@ -1,11 +1,15 @@
 import React, { ReactElement } from "react";
-import { Pie } from "react-chartjs-2";
-import { CreditCalculationResult, CreditCalculationType } from "../../servcies/credit-calculator-types";
-import { formatMoney } from "../../utils/number-formatters";
+import { Bar, Pie } from "react-chartjs-2";
+import {
+    CreditCalculationResult,
+    CreditCalculationType,
+    MonthlyDataItem,
+    PaymentType,
+} from "../../servcies/credit-calculator-types";
+import { getMonthAndYear } from "../../utils/date-formatters";
+import { formatMoney, roundMoney } from "../../utils/number-formatters";
 
 export default function CreditCalculatorResult(props: { result: CreditCalculationResult | null }) {
-    console.log(props);
-
     if (props.result === null) {
         return null;
     }
@@ -22,7 +26,7 @@ function renderResultContent(props: { result: CreditCalculationResult }) {
         return <p>{props.result.error}</p>;
     }
 
-    const { charges, monthlyPayment, total, amount, period } = props.result.values!;
+    const { charges, monthlyPayment, total, amount, period, monthlyData } = props.result.values!;
 
     let rows: Array<ReactElement>;
     switch (props.result.calculationType) {
@@ -51,34 +55,71 @@ function renderResultContent(props: { result: CreditCalculationResult }) {
             rows = [];
     }
 
-    console.log({ charges, monthlyPayment, total, amount, period });
-
     const pieData = {
-        labels: [
-            "Сумма кредита",
-            "Сумма переплаты",
+        labels: ["Сумма кредита", "Сумма переплаты"],
+        datasets: [
+            {
+                data: [amount, charges],
+                backgroundColor: ["#FF6384", "#36A2EB"],
+                hoverBackgroundColor: ["#FF6384", "#36A2EB"],
+            },
         ],
-        datasets: [{
-            data: [amount, charges],
-            backgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            ],
-            hoverBackgroundColor: [
-            '#FF6384',
-            '#36A2EB',
-            ]
-        }]
     };
+
+    const monthlyBarData = getMonthlyBarData(monthlyData);
 
     return (
         <div>
             <div className="row mb-3">
+                <div className="col-md-6">{rows}</div>
                 <div className="col-md-6">
-                    {rows}
+                    <Pie data={pieData} />
                 </div>
-                <div className="col-md-6">
-                    <Pie data={pieData}/>
+            </div>
+            <div className="row mb-3">
+                <div className="col-md-12">
+                    <Bar
+                        data={monthlyBarData}
+                        options={{
+                            title: {
+                                display: true,
+                                text: "График погашений",
+                            },
+                            tooltips: {
+                                mode: "index",
+                                intersect: false,
+                            },
+                            responsive: true,
+                            scales: {
+                                xAxes: [
+                                    {
+                                        stacked: true,
+                                    },
+                                ],
+                                yAxes: [
+                                    {
+                                        stacked: true,
+                                    },
+                                ],
+                            },
+                        }}
+                    />
+                </div>
+            </div>
+            <div className="row mb-3">
+                <div className="col-md-12">
+                    <table className="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th>Сумма платежа</th>
+                                <th>Платёж по основном долгу</th>
+                                <th>Платёж по процентам</th>
+                                <th>Остаток</th>
+                            </tr>
+                        </thead>
+                        <tbody>{renderMonthlyDataRows(props.result, monthlyBarData.labels)}</tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -94,5 +135,59 @@ function renderRowInResult(label: string, value: number, postLabel: string = "р
                 <span className="calc-result-row__currency">{postLabel}</span>
             </div>
         </div>
-    )
+    );
+}
+
+function getMonthlyBarData(monthlyData: MonthlyDataItem[]) {
+    const n = monthlyData.length;
+    const currentDate = new Date();
+    const labels: string[] = new Array(n);
+    for (let i = 0; i < n; i++) {
+        const date = new Date(currentDate);
+        date.setMonth(currentDate.getMonth() + i);
+        labels[i] = getMonthAndYear(date);
+    }
+
+    return {
+        labels,
+        datasets: [
+            {
+                label: "Основной долг",
+                backgroundColor: "#FF6384",
+                hoverBackgroundColor: "#FF6384",
+                data: monthlyData.map((x) => x.main),
+            },
+            {
+                label: "Проценты",
+                backgroundColor: "#36A2EB",
+                hoverBackgroundColor: "#36A2EB",
+                data: monthlyData.map((x) => x.percent),
+            },
+        ],
+    };
+}
+
+function renderMonthlyDataRows(result: CreditCalculationResult, monthNames: string[]) {
+    const { monthlyData } = result.values;
+    const n = monthlyData.length;
+    const rows = new Array(n);
+    for (let i = 0; i < n; i++) {
+        const item = monthlyData[i];
+        const payment =
+            result.paymentType === PaymentType.Annuity
+                ? result.values.monthlyPayment
+                : roundMoney(item.main + item.percent);
+
+        if (result.paymentType === PaymentType.Annuity)
+            rows[i] = (
+                <tr key={monthNames[i]}>
+                    <td>{monthNames[i]}</td>
+                    <td>{formatMoney(payment.toString())}</td>
+                    <td>{formatMoney(item.main.toString())}</td>
+                    <td>{formatMoney(item.percent.toString())}</td>
+                    <td>{formatMoney(item.left.toString())}</td>
+                </tr>
+            );
+    }
+    return rows;
 }

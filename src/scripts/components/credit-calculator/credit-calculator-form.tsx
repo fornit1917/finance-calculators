@@ -12,7 +12,7 @@ import InputField from "../common/input-field";
 import RadoibuttonsField from "../common/radiobuttons-field";
 
 interface CreditCalculatorFormProps {
-    onCalculate: (params: CreditCalculationParams) => void;
+    onCalculate: (params: CreditCalculationParams | null) => void;
 }
 
 export interface CreditCalculatorFormState {
@@ -36,26 +36,29 @@ const PERIOD_TYPE_OPTIONS = [
     { value: PeriodType.Month.toString(), text: "Месяцев" },
 ];
 
+const DEFAULT_VALUES = {
+    calculationType: CreditCalculationType.Payment.toString(),
+    amount: "",
+    period: "",
+    periodType: PeriodType.Year.toString(),
+    percent: "",
+    payment: "",
+    paymentType: PaymentType.Annuity.toString(),
+};
+
 export default class CreditCalculatorForm extends PureComponent<CreditCalculatorFormProps, CreditCalculatorFormState> {
     constructor(props) {
         super(props);
         this.state = {
-            values: {
-                calculationType: CreditCalculationType.Payment.toString(),
-                amount: "",
-                period: "",
-                periodType: PeriodType.Year.toString(),
-                percent: "",
-                payment: "",
-                paymentType: PaymentType.Annuity.toString(),
-            },
+            values: DEFAULT_VALUES,
             errors: {},
         };
     }
 
     handleCalculationTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const values = { ...this.state.values, calculationType: e.currentTarget.value };
-        this.setState({ ...this.state, values });
+        const values = { ...DEFAULT_VALUES, calculationType: e.currentTarget.value };
+        this.setState({ ...this.state, values, errors: {} });
+        this.props.onCalculate(null);
     };
 
     handlePaymentTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,15 +76,14 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
         } else {
             formatter = getNumberChars;
         }
-        
+
         const value = formatter(e.currentTarget.value);
-        console.log({value, src: e.currentTarget.value});
         if (value === null) {
             return;
         }
 
         const values = { ...this.state.values, [id]: value };
-        
+
         if (this.state.errors[id]) {
             const fieldError = validateCreditForm(values, id as Fields)[id];
             const errors = { ...this.state.errors };
@@ -99,7 +101,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
     handlePeriodTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const values = { ...this.state.values, periodType: e.currentTarget.value };
         this.setState({ ...this.state, values });
-    }
+    };
 
     handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.stopPropagation();
@@ -113,7 +115,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
                 this.props.onCalculate(calculationParams);
             }
         });
-    }
+    };
 
     private getValue(field: Fields): string {
         return this.state.values[field];
@@ -134,6 +136,7 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
                 value={this.getValue(Fields.Payment)}
                 onChange={this.handleTextInputChange}
                 error={this.state.errors.payment}
+                additionalText="Руб."
             />
         );
     }
@@ -187,11 +190,19 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
 
     renderPeriodTypeDropdown = () => {
         return (
-            <select className="form-select" onChange={this.handlePeriodTypeChange}>
-                {PERIOD_TYPE_OPTIONS.map(x => <option key={x.value} value={x.value}>{x.text}</option>)}
-            </select>            
-        )
-    }
+            <select
+                className="form-select"
+                value={this.state.values.periodType.toString()}
+                onChange={this.handlePeriodTypeChange}
+            >
+                {PERIOD_TYPE_OPTIONS.map((x) => (
+                    <option key={x.value} value={x.value}>
+                        {x.text}
+                    </option>
+                ))}
+            </select>
+        );
+    };
 
     render() {
         const errors = this.state.errors;
@@ -217,7 +228,9 @@ export default class CreditCalculatorForm extends PureComponent<CreditCalculator
                         error={errors.percent}
                     />
                     {this.renderPaymentTypeField()}
-                    <button type="submit" className="btn btn-primary">Рассчитать</button>
+                    <button type="submit" className="btn btn-primary">
+                        Рассчитать
+                    </button>
                 </form>
             </div>
         );

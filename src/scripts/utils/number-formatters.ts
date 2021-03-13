@@ -34,6 +34,10 @@ export function getPositiveIntegerChars(s: string): string {
     return s.replace(/[^\d]/g, "");
 }
 
+export function roundMoney(x: number): number {
+    return parseFloat(x.toFixed(2));
+}
+
 
 function getMoney(s: string): [string, string | undefined] | null {
     const match = /^([0-9]+)(\.[0-9]{0,2})?$/gm.exec(s);
