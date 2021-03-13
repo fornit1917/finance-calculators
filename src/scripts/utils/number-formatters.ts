@@ -26,6 +26,17 @@ export function formatMoney(s: string): string | null {
         : chars.reverse().join("");
 }
 
+export function formatMoneyPadded(s: string): string | null {
+    let result = formatMoney(s);
+    if (result !== null) {
+        const pointIndex = result.lastIndexOf(".");
+        if (pointIndex !== -1 && pointIndex === result.length - 2) {
+            result = result + "0";
+        }
+    }
+    return result;
+}
+
 export function getNumberChars(s: string): string {
     return s.replace(",", ".").replace(/[^\d.-]/g, "");
 }

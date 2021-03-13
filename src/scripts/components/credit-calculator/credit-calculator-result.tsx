@@ -7,7 +7,7 @@ import {
     PaymentType,
 } from "../../servcies/credit-calculator-types";
 import { getMonthAndYear } from "../../utils/date-formatters";
-import { formatMoney, roundMoney } from "../../utils/number-formatters";
+import { formatMoneyPadded, roundMoney } from "../../utils/number-formatters";
 
 export default function CreditCalculatorResult(props: { result: CreditCalculationResult | null }) {
     if (props.result === null) {
@@ -129,8 +129,8 @@ function renderResultContent(props: { result: CreditCalculationResult }) {
 function renderRowInResult(label: string, value: number | [number, number], postLabel: string = "руб.") {
     const valueStr =
         typeof value === "number"
-            ? formatMoney(value.toString())
-            : `${formatMoney(value[0].toString())} .. ${formatMoney(value[1].toString())}`;
+            ? formatMoneyPadded(value.toString())
+            : `${formatMoneyPadded(value[0].toString())} .. ${formatMoneyPadded(value[1].toString())}`;
     return (
         <div className="row mb-3 calc-result-row" key={label}>
             <div className="col-sm-6">{label}</div>
@@ -185,10 +185,10 @@ function renderMonthlyDataRows(result: CreditCalculationResult, monthNames: stri
         rows[i] = (
             <tr key={monthNames[i]}>
                 <td>{monthNames[i]}</td>
-                <td>{formatMoney(payment.toString())}</td>
-                <td>{formatMoney(item.main.toString())}</td>
-                <td>{formatMoney(item.percent.toString())}</td>
-                <td>{formatMoney(item.left.toString())}</td>
+                <td>{formatMoneyPadded(payment.toString())}</td>
+                <td>{formatMoneyPadded(item.main.toString())}</td>
+                <td>{formatMoneyPadded(item.percent.toString())}</td>
+                <td>{formatMoneyPadded(item.left.toString())}</td>
             </tr>
         );
     }
@@ -207,7 +207,7 @@ function renderMonthlyDataRows(result: CreditCalculationResult, monthNames: stri
 function renderSummaryResultsTableCell(value: number, comment: string) {
     return (
         <td>
-            <b>{formatMoney(value.toString())}</b>&nbsp;<span className="small-text">Руб.</span>
+            <b>{formatMoneyPadded(value.toString())}</b>&nbsp;<span className="small-text">Руб.</span>
             <br/>
             <span className="small-text">{comment}</span>
         </td>
