@@ -46,6 +46,10 @@ body {
     }
 }
 
+.small-text {
+    color: #758a9a;
+    font-size: 0.9em;
+}
 
 
 
@@ -57,5 +61,11 @@ body {
 
     &__currency {
         color: #758a9a;
+    }
+}
+
+.monthly-result-table {
+    td, th {
+        background-color: #fbfcfc;
     }
 }

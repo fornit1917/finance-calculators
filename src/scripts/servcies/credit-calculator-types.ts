@@ -33,7 +33,7 @@ export interface CreditCalculationResult {
     readonly calculationType: CreditCalculationType;
     readonly paymentType: PaymentType;
     readonly values?: {
-        monthlyPayment: number;
+        monthlyPayment: number | [number, number];
         charges: number;
         total: number;
         amount: number;

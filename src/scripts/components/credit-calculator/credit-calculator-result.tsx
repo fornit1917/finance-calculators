@@ -108,7 +108,7 @@ function renderResultContent(props: { result: CreditCalculationResult }) {
             </div>
             <div className="row mb-3">
                 <div className="col-md-12">
-                    <table className="table table-bordered">
+                    <table className="table table-bordered monthly-result-table">
                         <thead>
                             <tr>
                                 <th>Месяц</th>
@@ -126,12 +126,16 @@ function renderResultContent(props: { result: CreditCalculationResult }) {
     );
 }
 
-function renderRowInResult(label: string, value: number, postLabel: string = "руб.") {
+function renderRowInResult(label: string, value: number | [number, number], postLabel: string = "руб.") {
+    const valueStr =
+        typeof value === "number"
+            ? formatMoney(value.toString())
+            : `${formatMoney(value[0].toString())} .. ${formatMoney(value[1].toString())}`;
     return (
         <div className="row mb-3 calc-result-row" key={label}>
             <div className="col-sm-6">{label}</div>
             <div className="col-sm-6">
-                <span className="calc-result-row__value">{formatMoney(value.toString())} </span>
+                <span className="calc-result-row__value">{valueStr} </span>
                 <span className="calc-result-row__currency">{postLabel}</span>
             </div>
         </div>
@@ -170,7 +174,7 @@ function getMonthlyBarData(monthlyData: MonthlyDataItem[]) {
 function renderMonthlyDataRows(result: CreditCalculationResult, monthNames: string[]) {
     const { monthlyData } = result.values;
     const n = monthlyData.length;
-    const rows = new Array(n);
+    const rows = new Array(n + 1);
     for (let i = 0; i < n; i++) {
         const item = monthlyData[i];
         const payment =
@@ -178,16 +182,34 @@ function renderMonthlyDataRows(result: CreditCalculationResult, monthNames: stri
                 ? result.values.monthlyPayment
                 : roundMoney(item.main + item.percent);
 
-        if (result.paymentType === PaymentType.Annuity)
-            rows[i] = (
-                <tr key={monthNames[i]}>
-                    <td>{monthNames[i]}</td>
-                    <td>{formatMoney(payment.toString())}</td>
-                    <td>{formatMoney(item.main.toString())}</td>
-                    <td>{formatMoney(item.percent.toString())}</td>
-                    <td>{formatMoney(item.left.toString())}</td>
-                </tr>
-            );
+        rows[i] = (
+            <tr key={monthNames[i]}>
+                <td>{monthNames[i]}</td>
+                <td>{formatMoney(payment.toString())}</td>
+                <td>{formatMoney(item.main.toString())}</td>
+                <td>{formatMoney(item.percent.toString())}</td>
+                <td>{formatMoney(item.left.toString())}</td>
+            </tr>
+        );
     }
+    rows[n] = (
+        <tr key="total">
+            <td></td>
+            {renderSummaryResultsTableCell(result.values.total, "(Выплачено всего)")}
+            {renderSummaryResultsTableCell(result.values.amount, "(Выплаченный долг)")}
+            {renderSummaryResultsTableCell(result.values.charges, "(Выплаченные проценты)")}
+            <td></td>
+        </tr>
+    );
     return rows;
+}
+
+function renderSummaryResultsTableCell(value: number, comment: string) {
+    return (
+        <td>
+            <b>{formatMoney(value.toString())}</b>&nbsp;<span className="small-text">Руб.</span>
+            <br/>
+            <span className="small-text">{comment}</span>
+        </td>
+    )
 }
